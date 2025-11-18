@@ -10,10 +10,11 @@ import Comments from "./pages/admin/Comments";
 import Login from "./components/admin/Login";
 //import the css of quill for react
 import "quill/dist/quill.snow.css";
-
+import {Toaster} from 'react-hot-toast'
 const App = () => {
   return (
     <div>
+      <Toaster />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/blog/:_id" element={<Blog />} />
