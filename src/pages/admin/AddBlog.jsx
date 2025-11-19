@@ -4,6 +4,7 @@ import Quill from "quill";
 import { blogCategories } from "../../assets/assets";
 import { useAppContext } from "../../../context/AppContext";
 import toast from "react-hot-toast";
+import {parse} from 'marked'
 
 const AddBlog = () => {
 
@@ -17,6 +18,8 @@ const AddBlog = () => {
   const [subTitle, setsubTitle] = useState("");
   const [category, setCategory] = useState("Startup");
   const [isPublished, setIsPublished] = useState(false);
+    const [loading,setLoading] = useState(false); 
+
 
   const onSubmitHandler = async (e) => {
     try {
@@ -43,13 +46,30 @@ const AddBlog = () => {
         toast.error(data.message)
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.response?.data?.message || error.message)
     }
     finally { 
       setIsAdding(false);
     }
   };
-  const generateContent = async () => {};
+  const generateContent = async () => {
+    if(!title) return toast.error('Please enter a title');
+    try {
+      setLoading(true)
+      const {data} = await axios.post('/api/blog/generate',{prompt : title})
+      if (data.success) { 
+        quillRef.current.root.innerHTML = parse(data.content)
+      }
+      else { 
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message)
+    }
+    finally { 
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     //Initiate Quill only once
@@ -102,6 +122,7 @@ const AddBlog = () => {
           <div className="max-w-lg h-74 pb-16 sm:pb-10 pt-2 relative">
             <div ref={editorRef}></div>
             <button
+            disabled = {loading}
               type="button"
               onClick={generateContent}
               className="absolute bottom-1 right-2 ml-2 text-xs bg-black/70 px-4 py-1.5 rounded hover:underline cursor-pointer text-white"
