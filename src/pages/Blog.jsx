@@ -6,6 +6,7 @@ import Moment from "moment";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
 import { useAppContext } from "../../context/AppContext";
+import toast from "react-hot-toast";
 
 const Blog = () => {
   const { _id } = useParams(); //get the blog id from the url params
@@ -18,14 +19,45 @@ const Blog = () => {
 
   //return the blog that match with the id
   const fetchBlogData = async () => {
-    const data = blog_data.find((item) => item._id === _id);
-    setData(data);
+    try {
+      //useParams return _id not id so change it
+      const {data} = await axios.get(`/api/blog/${_id}`)
+      data.success ? setData(data.blog) : toast.error(data.message)
+    } catch (error) {
+      toast.error(error.message);
+    }
+    
   };
   const fetchComment = async () => {
-    setComment(comments_data);
+    try {
+      const {data} = await axios.post('/api/blog/comments',{blogId: _id})
+      if (data.success) { 
+        setComment(data.comments)
+      }else { 
+              toast.error(data.message)
+
+      }
+    } catch (error) {
+      toast.error(error.message)
+      
+    }
   };
   const addComment = async (e) => {
     e.preventDefault();
+    try {
+      const {data} = await axios.post('/api/blog/add-comment',{blog : _id,name,content})
+      if (data.success) { 
+        toast.success(data.message)
+        setName('')
+        setContent('')
+        fetchComment()
+      }
+      else { 
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
   };
   useEffect(() => {
     fetchBlogData();
@@ -107,7 +139,7 @@ const Blog = () => {
               required
             ></textarea>
             <button
-              type="button"
+              type="submit"
               className="bg-primary text-white rounded p-2 px-8 hover:scale-102 transition-all cursor-pointer"
             >
               Submit
