@@ -29,6 +29,10 @@ export const AppProvider = ({ children }) => {
       setToken(token);
       //this token will be added in every api call when admin is loged in
       axios.defaults.headers.common["Authorization"] = `${token}`;
+    } else {
+      //check if the token is not exist
+      setToken(null);
+      localStorage.removeItem("token");
     }
   }, []);
   //we can access this data in another component
