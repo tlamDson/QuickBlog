@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 //instead of having the navigate hook, we can create it here
 const AppContext = createContext();
 
@@ -16,10 +16,17 @@ export const AppProvider = ({ children }) => {
 
   const fetchBlogs = async () => {
     try {
-      const { data } = await axios.get("/blog/all");
-      data.succuess ? setBlogs(data.blogs) : toast.error(data.message);
+      const { data } = await axios.get("/api/blog/all");
+      console.log("API Response:", data); // Debug log
+      if (data.success) {
+        console.log("Blogs received:", data.blogs); // Debug log
+        setBlogs(data.blogs || []);
+      } else {
+        toast.error(data.message || "Failed to fetch blogs");
+      }
     } catch (error) {
-      toast.error(error.message);
+      console.error("Error fetching blogs:", error); // Debug log
+      toast.error(error.response?.data?.message || error.message || "Failed to fetch blogs");
     }
   };
   useEffect(() => {
@@ -45,6 +52,7 @@ export const AppProvider = ({ children }) => {
     setBlogs,
     input,
     setInput,
+    fetchBlogs,
   };
   return (
     //wrong in wrapping value inside another object s owhen call the naviagate is undefined

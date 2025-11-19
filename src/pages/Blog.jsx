@@ -5,9 +5,12 @@ import Navbar from "../components/Navbar";
 import Moment from "moment";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
+import { useAppContext } from "../../context/AppContext";
 
 const Blog = () => {
   const { _id } = useParams(); //get the blog id from the url params
+  //add axios to make the api call
+  const {axios} = useAppContext();
   const [data, setData] = useState(null);
   const [comment, setComment] = useState([]);
   const [name, setName] = useState("");
